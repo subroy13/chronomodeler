@@ -78,14 +78,13 @@ def create_experiment(selected_sim, exp_count: int):
     dep_block = get_dep_block(collist)
     indep_block = get_indep_block(collist)
 
-    saved_schemas = barfi_schemas()
-    select_schema = st.selectbox('Select a saved computation flow:', saved_schemas)
+    # saved_schemas = barfi_schemas()
+    # select_schema = st.selectbox('Select a saved computation flow:', saved_schemas)
     barfi_result = st_barfi(
         base_blocks= {
             'Transformation': [transformation_block, add_block, subtract_block, mult_block, div_block],
             'Modelling': [prediction_block, dep_block, indep_block, merge_block]
-        },
-        load_schema=select_schema
+        }
     )
 
     if barfi_result is not None and len(barfi_result) > 0:
