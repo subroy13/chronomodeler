@@ -5,6 +5,7 @@ from streamlit_searchbox import st_searchbox
 from barfi import st_barfi, barfi_schemas, save_schema
 import datetime as dt
 from time import sleep
+import plotly.express as px
 
 from chronomodeler.dbutils import (
     get_simulation_suggestion, get_experiment_count,
@@ -16,6 +17,8 @@ from chronomodeler.blocks import (
     add_block, subtract_block, mult_block, div_block, merge_block
 )
 from chronomodeler.experiment import Experiment
+from chronomodeler.expconfig import ExperimentConfig
+from chronomodeler.authentication import requires_auth, UserAuthLevel
 
 def view_experiment_results(selected_sim, exp_count):
     exp_choice = st.selectbox(
@@ -26,19 +29,26 @@ def view_experiment_results(selected_sim, exp_count):
     )
     if exp_choice is not None:
         config, results = get_experiment_config(selected_sim['name'], exp_choice)
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('**Experiment Config**')
-            st.write(config)
-        with col2:
-            st.markdown('**Experiment Metrics**')
-            st.write(results)
 
+        # show the metrics
+        st.markdown('**Experiment Metrics**')
+        st.write(results)
+
+        # get the data and show plot of the dependent variable
         df = get_experiment_data(selected_sim['name'], exp_choice)
         df['Human Time'] = df['Time'].dt.strftime('%d %b, %Y')
+        fig = px.line(df, x = 'Time', y = ExperimentConfig.get_dependent_variable_from_config(config))
+        st.plotly_chart(fig, use_container_width=True)
+
+        # show the data also
         st.markdown('<hr/><b>Experiment Predictions</b>', unsafe_allow_html=True)
         st.dataframe(df)
 
+        # finally have a checkbox to show the config
+        show_config = st.checkbox('Show Experiment Config', value=False)
+        if show_config:
+            st.markdown('**Experiment Config**')
+            st.write(config)
 
 
 def delete_experiment_results(selected_sim, exp_count):
@@ -95,6 +105,14 @@ def create_experiment(selected_sim, exp_count: int):
         st.write(exp.results)
         st.dataframe(result)
 
+        # show the experiement related plot also
+        show_plot = st.checkbox('Show Visualization Plot', value=False)
+        if show_plot:
+            # TODO: Add option to whether to show only target or all non-time columns
+            fig = px.line(df, x = 'Time', y = exp.target_colname)
+            st.plotly_chart(fig, use_container_width=True)
+
+
         # if you are okay with the results, try to save it
         save_exp_btn = st.button('Save Experiment')
         if save_exp_btn:
@@ -109,6 +127,7 @@ def create_experiment(selected_sim, exp_count: int):
             st.experimental_rerun()
 
 
+@requires_auth(auth_level=UserAuthLevel["PRIVATE"])
 def experimentPage():
     st.header('Experiment Actions')
 

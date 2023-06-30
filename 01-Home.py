@@ -1,13 +1,50 @@
-import sys, os
+import sys, os, re
+import bcrypt
 import streamlit as st
+
+from chronomodeler.models import User, UserAuthLevel, Simulation, Experiment
 
 st.set_page_config(
     layout="wide"
 )
 
-def ChronoModelerHomePage():
-    st.title('Welcome to Chronomodeller!')
-    st.markdown("Chronomodeller is a powerful tool for analyzing time series data. This user-friendly app allows you to create simulations and conduct experiments to gain insights and make predictions.")
+
+@st.cache_data
+def runInitialSetup():
+    print('Initializing database schema if not created already')
+    User.create_table()
+    Simulation.create_table()
+    Experiment.create_table()
+    return True
+
+
+def signupSection():
+    st.header("Sign Up")
+    with st.form('user-sign-up', clear_on_submit=False):
+        useremail = st.text_input('Email', max_chars=256, help="Enter your work email address")
+        password = st.text_input('Password', type="password", help="Enter your preferred password. \nShould contain alphabets and numbers and \nspecial symbols for added protection.")
+        confirm_password = st.text_input('Confirm Password', type="password", help="Retype your password")
+        submit_btn = st.form_submit_button("Sign Up")
+
+        if submit_btn:
+            if re.search(r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b', useremail, re.I) is None:
+                st.error('Invalid email address')
+            elif password != confirm_password or password == "":
+                st.error('Password does not match confirm password')
+            else:
+                # everything is fine, create user
+                salt = bcrypt.gensalt()
+                user = User(
+                    username=useremail,
+                    password_hash=bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8'),
+                    authlevel=UserAuthLevel.PRIVATE
+                )
+                user.insert()  # modified the user
+                st.success('You are registered sucessfully, Proceed to any other page to login.')
+
+
+
+def instructionSection():
     st.header('Instructions for use')
     st.markdown("""
 ### Simulations
@@ -62,6 +99,18 @@ Feel free to explore the features and functionalities of Chronomodeller. If you 
 
 Happy exploring and analyzing your time series data with Chronomodeller!
     """)
+    
+
+
+
+
+def ChronoModelerHomePage():
+    runInitialSetup()
+    st.title('Welcome to Chronomodeller!')
+    st.markdown("Chronomodeller is a powerful tool for analyzing time series data. This user-friendly app allows you to create simulations and conduct experiments to gain insights and make predictions.")
+    signupSection()
+    st.markdown('<hr/>', unsafe_allow_html=True)
+    instructionSection()
     
 
 

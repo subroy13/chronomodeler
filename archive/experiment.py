@@ -10,6 +10,7 @@ from .preprocessor import (
     guess_data_frequency, get_date_list, prev_date_list, convert_annual_growth_rate,
     get_data_cell_value
 )
+from .expconfig import ExperimentConfig
 from .dbutils import get_experiment_data
 from .models import ChronoModel
 
@@ -20,39 +21,7 @@ class Experiment:
         self.data = data
         self.simulation_name = sim_name
         self.results = {}
-        self.exp_config = None
-
-    def get_experiment_config(self):
-        output = {}
-        for key, val in self.schema.items():
-            block: Block = val['block']
-            if val['type'] == 'Transformation':
-                block_params = {
-                    "method": block.get_option("method-option"),
-                    "parameter": block.get_option("method-param")
-                }
-            elif val['type'] == 'Modelling':
-                params = block.get_option("method-param").split(",")
-                try:
-                    params = [float(param) for param in params]
-                except Exception as e:
-                    params = []
-                block_params = {
-                    "method": block.get_option("method-option"),
-                    "parameter": params
-                }
-            elif val['type'] in ['Dependent Variable', 'Independent Variable']:
-                block_params = {
-                    "column": block.get_option("column-option")
-                }
-            else:
-                block_params = {}
-            item = {
-                'type': val['type'],
-                'dependencies': self.get_input_blocks(val)
-            } | block_params
-            output[key] = item
-        return output
+        self.target_colname = None
 
     def train_test_split(self, df: pd.DataFrame, filter_dates: List[dt.datetime]):
         split_dates = "-".join([x.strftime('%Y/%m/%d') for x in filter_dates])
@@ -87,6 +56,9 @@ class Experiment:
                 input_key = list(item['from'].keys())[0]
                 inputs.append(input_key)
         return inputs
+    
+    def get_experiment_config(self):
+        return ExperimentConfig.get_experiment_config(self.schema)
     
 
     def perform_transformations(self, df, root = None):
@@ -222,6 +194,7 @@ class Experiment:
         test_df = self.train_test_split(output['data'], test_dates).dropna().reset_index(drop = True)
         features = output['features']
         target = output['target']
+        self.target_colname = target
         X_train = train_df[features]
         y_train = train_df[target]
         X_test = test_df[features]

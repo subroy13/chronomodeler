@@ -3,3 +3,4 @@ pandas
 streamlit_searchbox
 barfi
 scikit-learn
+plotly
