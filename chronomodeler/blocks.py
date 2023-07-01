@@ -55,7 +55,7 @@ def get_indep_block(collist: list[str]):
 def get_dep_block(collist: list[str]):
     dep_block = Block(name = 'Dependent Variable')
     dep_block.add_input(name = 'Modelling Method')
-    dep_block.add_input()
+    dep_block.add_input(name = 'Merge Input')
     dep_block.add_option(name='display-option', type='display', value='Dependent Variable')
     dep_block.add_option(name='column-option', type='select', items=collist, value = collist[0])
     return dep_block

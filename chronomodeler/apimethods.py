@@ -35,7 +35,7 @@ def delete_simulation_data_table(sim: Simulation, userid: int):
     db_query_execute(sql, ())
 
 
-def get_simulation_data_initial(sim: Simulation, userid: int):
+def get_simulation_data_initial(sim: Simulation, userid: int) -> pd.DataFrame:
     table_name = simulation_data_table_name(sim, userid)
     expp = sim.get_initial_experiment()
     sql = f"SELECT * FROM {table_name} WHERE experiment_id = {expp.expid};"

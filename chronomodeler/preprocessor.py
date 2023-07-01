@@ -218,3 +218,8 @@ def create_single_filter(
     else:
         raise NotImplementedError(f"Invalid filter operator: {filter_operator}")
 
+
+def train_test_split(df: pd.DataFrame, filter_dates: List[dt.datetime]):
+    split_dates = "-".join([x.strftime('%Y/%m/%d') for x in filter_dates])
+    subdf = df.loc[apply_filters(df, [{'Time': {'between': split_dates } }])].dropna().copy(deep = True)
+    return subdf
