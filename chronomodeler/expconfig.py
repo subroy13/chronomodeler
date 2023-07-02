@@ -79,7 +79,7 @@ class ExperimentConfig:
         with open('schemas.barfi', 'wb') as f:
             pickle.dump({ exp_name: x }, f)
             f.close()
-        return True
+        return x
 
 
     @classmethod
@@ -137,12 +137,12 @@ class ExperimentConfig:
         elif nodeconfig['type'] in ['Independent Variable', 'Dependent Variable']:
             return [
                 ['display-option', nodeconfig['type']],
-                ['column-option', nodeconfig.gert('column')]
+                ['column-option', nodeconfig.get('column')]
             ]
         elif nodeconfig['type'] == 'Constant':
             return [
                 ['display-option', nodeconfig['type']],
-                ['value-option', nodeconfig.gert('value')]
+                ['value-option', nodeconfig.get('value')]
             ]
         else:
             return []
@@ -169,7 +169,7 @@ class ExperimentConfig:
             else:
                 # check for last input
                 interfaces = node['interfaces']
-                last_inp = sorted([row[0] for row in interfaces if 'Input' in row[1]], reverse=True)
+                last_inp = sorted([row[0] for row in interfaces if 'Input' in row[0]], reverse=True)
                 if len(last_inp) == 0:
                     return 'Input 1'
                 else:
@@ -211,7 +211,7 @@ class ExperimentConfig:
         edgelist = []
         for key in self.config:
             endnode = node_id_mapper[key]   # end node
-            dependencies = self.barfi_input_blocks(self.config[key])
+            dependencies = self.config[key].get('dependencies', [])
             for dep in dependencies:
                 startnode = node_id_mapper[dep]  # start node
 
@@ -222,10 +222,18 @@ class ExperimentConfig:
                 )
                 
                 start_node_output = self.get_current_barfi_node_interface(startnode)
-                start_node_output_id = f"ni_{counter + 2}"
-                node_id_mapper[dep]['interfaces'].append(
-                    [start_node_output, { "id": start_node_output_id, "value": None }]
-                )
+
+                # check if already have that output interface, then link to it
+                for inf in node_id_mapper[dep]['interfaces']:
+                    inf_output, inf_val = inf
+                    if inf_output == start_node_output:
+                        start_node_output_id = inf_val.get('id')
+                        break
+                else:
+                    start_node_output_id = f"ni_{counter + 2}"
+                    node_id_mapper[dep]['interfaces'].append(
+                        [start_node_output, { "id": start_node_output_id, "value": None }]
+                    )
 
                 edge = {
                     'id': str(counter),
@@ -233,15 +241,34 @@ class ExperimentConfig:
                     'to': end_node_input_id
                 }
                 edgelist.append(edge)
-                counter += 1
+                counter += 10
+
+        # extract the x-positioning
+        for key in self.config:
+            x_coord = self.extract_barfi_display_positioning(node_id_mapper, key)
+            node_id_mapper[key]['position']['x'] = x_coord
+        
+        # now for tie across x-position, extract the y-positions
+        for key in self.config:
+            x_coord = node_id_mapper[key]['position']['x']
+            x_coord_ties = [node_id_mapper[otherkey]['position']['y'] for otherkey in self.config if (otherkey != key and node_id_mapper[otherkey]['position']['x'] == x_coord) ]
+            y_coord = (max(x_coord_ties) + 200) if len(x_coord_ties) > 0 else 0
+            node_id_mapper[key]['position']['y'] = y_coord
 
         return {
             'nodes': [node_id_mapper[key] for key in node_id_mapper],
             'connections': edgelist,
-            'panning': { 'x': 0, 'y': 0 },
-            'scaling': 1
+            'panning': { 'x': 50, 'y': 200 },
+            'scaling': 0.8
         }
-
+    
+    def extract_barfi_display_positioning(self, node_id_mapper: Dict, key: str):
+        dependencies = self.config[key].get('dependencies', [])
+        if len(dependencies) == 0:
+            return 0
+        else:
+            dependent_depths = [self.extract_barfi_display_positioning(node_id_mapper, dep) for dep in dependencies]
+            return max(dependent_depths) + 300
 
 
 def perform_transformations(expconf: ExperimentConfig, df, root = None):
@@ -278,7 +305,7 @@ def perform_transformations(expconf: ExperimentConfig, df, root = None):
                 collist += x
             else:
                 collist.append(x)
-            return collist
+        return collist
     elif nodeconfig['type'] == 'Dependent Variable':
         inp_blocks = nodeconfig.get('dependencies', [])
         output = {

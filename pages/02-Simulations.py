@@ -116,8 +116,6 @@ def simulationListSection(userid):
         df = get_simulation_data_initial(selected_sim, userid)
         st.dataframe(df)
         
-        # TODO: 
-
 
 
 def simulationDeleteSection(userid):

@@ -21,13 +21,17 @@ def insert_data_to_experiment(df: pd.DataFrame, expp: Experiment, sim: Simulatio
         df.to_sql(table_name, get_db_conn(), if_exists="replace", index=False)
     else:
         # not initial experiment, should append
-        sql = f"DELETE FROM {table_name} WHERE experiment_id = {expp.id}"
+        sql = f"DELETE FROM {table_name} WHERE experiment_id = {expp.expid}"
         db_query_execute(sql, ())
 
         # now append the data
         df.to_sql(table_name, get_db_conn(), if_exists="append", index=False)
-
     return True
+
+def delete_data_from_experiment(expp: Experiment, sim: Simulation, userid: int):
+    table_name = simulation_data_table_name(sim, userid)
+    sql = f"DELETE FROM {table_name} WHERE experiment_id = ?;"
+    db_query_execute(sql, (expp.expid, ))
 
 
 def delete_simulation_data_table(sim: Simulation, userid: int):
