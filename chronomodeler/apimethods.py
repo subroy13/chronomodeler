@@ -4,6 +4,7 @@
 
 import streamlit as st
 import pandas as pd
+import re
 import numpy as np
 
 from chronomodeler.models import Simulation, Experiment, User
@@ -11,7 +12,7 @@ from chronomodeler.dbutils import get_db_conn, db_query_execute
 
 def simulation_data_table_name(sim: Simulation, userid: int):
     user = User.get(userid)
-    return f"{user.username}_{sim.sim_name}"
+    return  re.sub(re.compile(r'[^a-z0-9]'), '_', f"{user.username}_{sim.sim_name}".lower())
 
 def insert_data_to_experiment(df: pd.DataFrame, expp: Experiment, sim: Simulation, userid: int):
     table_name = simulation_data_table_name(sim, userid)
@@ -41,3 +42,12 @@ def get_simulation_data_initial(sim: Simulation, userid: int) -> pd.DataFrame:
     sql = f"SELECT * FROM {table_name} WHERE experiment_id = {expp.expid};"
     df = pd.read_sql(sql, get_db_conn(), index_col=None, parse_dates=['Time'])
     return df
+
+def get_simulation_experiment_data(sim: Simulation, userid: int, parameter: int):
+    table_name = simulation_data_table_name(sim, userid)
+    expp = sim.get_nth_experiment(n = parameter)
+    sql = f"SELECT * FROM {table_name} WHERE experiment_id = {expp.expid};"
+    df = pd.read_sql(sql, get_db_conn(), index_col=None, parse_dates=['Time'])
+    return df
+    
+

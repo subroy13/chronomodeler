@@ -12,6 +12,7 @@ class Experiment(BaseModel):
         "expid", "exp_name", "simid", "config", "results", "created_at", "updated_at"
     ]
     _identity = "expid"
+    _searchcols = ["exp_name"]
 
 
     def __init__(
@@ -29,6 +30,7 @@ class Experiment(BaseModel):
         self.exp_name = exp_name
         self.config = json.loads(config) if isinstance(config, str) else config
         self.results = json.loads(results) if isinstance(results, str) else results
+        self.initial = initial if isinstance(initial, bool) else bool(initial)
         self.created_at = created_at if created_at is not None else int(time.time())
         self.updated_at = updated_at if updated_at is not None else self.created_at
         self.expid = expid
@@ -53,6 +55,8 @@ class Experiment(BaseModel):
         tmp = super().to_dict()        
         tmp['config'] = json.dumps(self.config)
         tmp['results'] = json.dumps(self.results)
+        tmp['initial'] = 1 if self.initial else 0
+        return tmp
 
 
 

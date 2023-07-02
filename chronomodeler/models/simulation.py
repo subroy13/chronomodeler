@@ -58,7 +58,17 @@ class Simulation(BaseModel):
 
     def get_initial_experiment(self):
         sql = f"SELECT {','.join(Experiment._columns)} FROM {Experiment._table} \
-            WHERE simid = {self.simid} AND initial = true;"
+            WHERE simid = {self.simid} AND initial = 1;"
+        rows = db_query_fetch(sql, ())
+        if rows is None or len(rows) == 0:
+            return None
+        else:
+            return Experiment(**rows[0])
+        
+    def get_nth_experiment(self, n: int = 1):
+        sql = f"SELECT {','.join(Experiment._columns)} FROM {Experiment._table} \
+            WHERE simid = {self.simid} ORDER BY {Experiment._identity} ASC \
+            LIMIT 1 OFFSET {n-1};"
         rows = db_query_fetch(sql, ())
         if rows is None or len(rows) == 0:
             return None
@@ -66,12 +76,10 @@ class Simulation(BaseModel):
             return Experiment(**rows[0])
 
     def get_experiment_count(self):
-        sql = f"SELECT draft, COUNT(1) AS totalcount FROM {Experiment._table} WHERE simid = {self.simid} AND initial = false GROUP BY draft;"
+        sql = f"SELECT COUNT(1) AS totalcount FROM {Experiment._table} WHERE simid = {self.simid} AND initial = 0;"
         res = db_query_fetch(sql, ())
         if res is None or len(res) == 0:
-            return { 'draft': 0, 'final': 0 }
+            return 0
         else:
-            return { 
-                'draft': int([row['totalcount'] for row in res if row['draft']][0]), 
-                'final': int([row['totalcount'] for row in res if not row['draft']][0])
-            }
+            return int(res[0].get('totalcount', 0))
+

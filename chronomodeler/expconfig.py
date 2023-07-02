@@ -1,14 +1,18 @@
 from typing import Dict, List
 from barfi import Block
 import pandas as pd
+import pickle
 import datetime as dt
 
 from chronomodeler.preprocessor import (
     apply_filters, apply_mixer_transformation,
-    apply_single_transformation, train_test_split
+    apply_single_transformation, train_test_split,
+    get_date_list, guess_data_frequency, prev_date_list,
+    get_data_cell_value, convert_annual_growth_rate, convert_to_datetime
 )
 from chronomodeler.chronomodel import ChronoModel
-
+from chronomodeler.models import User, UserAuthLevel, Experiment, Simulation
+from chronomodeler.apimethods import get_simulation_experiment_data
 
 class ExperimentConfig:
     """
@@ -19,7 +23,8 @@ class ExperimentConfig:
         self.config = config
 
 
-    def barfi_input_blocks(self, schemapart: Dict) -> List[str]:
+    @classmethod
+    def barfi_input_blocks(cls, schemapart: Dict) -> List[str]:
         inputs = []
         for _, item in schemapart['interfaces'].items():
             if item.get('type') == 'intput':
@@ -39,13 +44,42 @@ class ExperimentConfig:
     def get_nodeconfig(self, nodekey):
         return self.config[nodekey]
     
-    def get_final_model(self):
-        root = self.get_root()
-        nodeconfig = self.get_nodeconfig(root)
+    def get_node_model(self, node: str = None):
+        if node is None:
+            node = self.get_root()
+        nodeconfig = self.get_nodeconfig(node)
+        
+        # find the dependent modelling method node
+        dependencies = nodeconfig.get('dependencies', [])
+        for dep in dependencies:
+            depconf = self.get_nodeconfig(dep)
+            if depconf['type'] == 'Modelling':
+                return {
+                    'method': depconf.get('method'),
+                    'parameter': depconf.get('parameter')
+                }
         return {
-            'method': nodeconfig.get('method'),
-            'parameter': nodeconfig.get('parameter')
+            'method': None, 'parameter': None
         }
+
+
+    def get_variables_list(self):
+        var_details = {}
+        for key in self.config:
+            if self.config[key]['type'] in ['Dependent Variable', 'Independent Variable']:
+                colname = self.config[key].get('column')
+                if colname not in var_details:
+                    nodemodel = self.get_node_model(key)
+                    if nodemodel['method'] is not None:
+                        var_details[colname] = nodemodel | { 'type': self.config[key]['type'] }
+        return var_details
+
+    def save_schema_temporarily(self, exp_name: str):
+        x = self.extract_barfi_display()
+        with open('schemas.barfi', 'wb') as f:
+            pickle.dump({ exp_name: x }, f)
+            f.close()
+        return True
 
 
     @classmethod
@@ -231,21 +265,21 @@ def perform_transformations(expconf: ExperimentConfig, df, root = None):
     elif nodeconfig['type'] in ['Add', 'Subtract', 'Multiply', 'Division']:
         inp_blocks = nodeconfig.get('dependencies', [])
         collist = [perform_transformations(expconf, df, col) for col in inp_blocks]
-        return apply_mixer_transformation(collist, root['type'])
+        return apply_mixer_transformation(collist, nodeconfig['type'])
     elif nodeconfig['type'] == 'Modelling':
         pass 
     elif nodeconfig['type'] == 'Merge':
         inp_blocks = nodeconfig.get('dependencies', [])
         collist = []
         for col in inp_blocks:
-            x = perform_transformations(df, col)
+            x = perform_transformations(expconf, df, col)
             if isinstance(x, list):
                 # for nested merge blocks
                 collist += x
             else:
                 collist.append(x)
             return collist
-    elif root['type'] == 'Dependent Variable':
+    elif nodeconfig['type'] == 'Dependent Variable':
         inp_blocks = nodeconfig.get('dependencies', [])
         output = {
             'target': nodeconfig.get('column'),
@@ -263,8 +297,62 @@ def perform_transformations(expconf: ExperimentConfig, df, root = None):
                 output['data'] = df
         return output
     else:
-        raise NotImplementedError(f"Invalid node type {root['type']}")
+        raise NotImplementedError(f"Invalid node type {nodeconfig['type']}")
     
+
+def create_pred_df(
+        pred_date: dt.datetime, 
+        data_freq: str, 
+        variables: List[str], 
+        total_df: pd.DataFrame,
+        selected_sim: Simulation
+    ):
+    BACK_WINDOW = 5
+    prev_dates = prev_date_list(pred_date, data_freq, n = BACK_WINDOW)        
+    collist = [col for col in variables]
+    new_data = total_df[collist + ['Time', 'TimeIndex']]
+    new_data = new_data.loc[new_data['Time'] <= pred_date].copy(deep = True)
+    for d in prev_dates:
+        row = {'Time': d, 'TimeIndex': None }
+        for col in collist + ['TimeIndex']:
+            if col == 'TimeIndex':
+                row[col] = get_data_cell_value(new_data, new_data['Time'] == d, 'TimeIndex')
+            elif variables[col]['type'] == 'Dependent Variable':
+                row[col] = get_data_cell_value(new_data, new_data['Time'] == d, col)
+            else:
+                method = variables[col].get("model")
+                parameter = variables[col].get("parameter")
+                if method == "Identity":
+                    # look for data present in new_data
+                    row[col] = get_data_cell_value(new_data, new_data['Time'] == d, col)
+                elif method == "CAGR":
+                    stride, window = [int(x) for x in parameter.split(",")]
+
+                    # calculate the CAGR
+                    oldest_val = new_data.iloc[:window][col].mean(skipna=True)
+                    ntime = int(new_data.shape[0]/window)
+                    newest_val = new_data.iloc[(window * (ntime - 1)):(window * ntime)][col].mean(skipna=True)
+                    cagr_rate = ((newest_val / oldest_val)**(1 / ntime) - 1)
+
+                    prev_d = prev_date_list(d, data_freq, n = 1 + int(stride) )[0]
+                    row[col] = get_data_cell_value(new_data, new_data['Time'] == prev_d, col) * (1 + cagr_rate) ** (stride / window)
+                elif method == "Growth":
+                    offset, growth_rate = [float(x) for x in parameter.split(",")]
+                    prev_d = prev_date_list(d, data_freq, n = 1 + int(offset) )[0]
+                    row[col] = get_data_cell_value(new_data, new_data['Time'] == prev_d, col) * (1 + convert_annual_growth_rate(growth_rate, data_freq) )**offset
+                elif method == "Experiment Output":
+                    prev_exp_df = get_simulation_experiment_data(selected_sim, selected_sim.userid, int(parameter))
+                    row[col] = get_data_cell_value(prev_exp_df, prev_exp_df['Time'] == d, col)
+                else:
+                    raise NotImplementedError("Invalid prediction model method")  
+        new_data = pd.concat([new_data, pd.DataFrame([row])])
+        
+    new_data = new_data.reset_index(drop = True)
+    last_value = new_data['TimeIndex'].last_valid_index()
+    end = new_data.loc[last_value, 'TimeIndex']
+    offset = int(end - last_value)
+    new_data['TimeIndex'] = new_data['TimeIndex'].fillna(pd.Series(range(offset, new_data.shape[0] + offset )) )
+    return new_data.tail(BACK_WINDOW)
 
 
 
@@ -273,7 +361,8 @@ def run_experiment(
         df: pd.DataFrame,
         train_dates: List[dt.datetime], 
         test_dates: List[dt.datetime],
-        pred_dates: List[dt.datetime]
+        pred_dates: List[dt.datetime],
+        selected_sim: Simulation
     ):
     # Step 1: Apply the transformations
     output = perform_transformations(expconf, df)
@@ -289,16 +378,36 @@ def run_experiment(
     y_test = test_df[target]
 
     # Step 3: Fit model and Perform testing
-    method = output['Model'].get('method')
-    mod = ChronoModel(model_name=method, parameters = output['Model'].get('parameter'))
+    final_modconfg = expconf.get_node_model()
+    mod = ChronoModel(model_name=final_modconfg.get('method'), parameters = final_modconfg.get('parameter'))
     mod.fit_model(X_train, y_train)
     error_df = mod.predict_model(X_test, y_test)
     fit_results = mod.metrics
 
     # Step 4: Fit Model on train + test data
-    new_train_df = self.train_test_split(output['data'], [train_dates[0], test_dates[1]]).dropna().reset_index(drop = True)
+    new_train_df = train_test_split(output['data'], [train_dates[0], test_dates[1]]).dropna().reset_index(drop = True)
     mod.fit_model(new_train_df[features], new_train_df[target], update_metrics=False)
     
+    # Step 5: Perform prediction
+    data_freq = guess_data_frequency(df['Time'])
+    pred_date_list = get_date_list(pred_dates, data_freq)
+    var_details = expconf.get_variables_list()
 
+    total_df = df[[var for var in var_details] + ['Time', 'TimeIndex']].copy(deep = True)  # includes existing projection as well if present    
+    for pred_date in pred_date_list:
+        pred_df = create_pred_df(pred_date, data_freq, var_details, total_df, selected_sim)  # last row is to be predicted, previous rows may come from existing predicted data / known data
+        pred_transform = perform_transformations(expconf, pred_df)
+        predictions = mod.predict_model(pred_transform['data'][pred_transform['features']].dropna().reset_index(drop = True))            
+        predval = predictions.iloc[predictions.shape[0] - 1]['Prediction']
+        row = pd.DataFrame([ pred_df.to_dict('records')[pred_df.shape[0] - 1] | { pred_transform['target'] : predval } ])
+        total_df = pd.concat([
+            total_df,
+            row[[var for var in var_details] + ['Time', 'TimeIndex']]
+        ])
+
+    # finally filter the total df to only prediction dates
+    total_df['Human Time'] = total_df['Time'].dt.strftime('%d %b, %Y')
+    final_df = total_df.tail(len(pred_date_list))
+    return final_df, new_train_df[features].shape, fit_results
 
 

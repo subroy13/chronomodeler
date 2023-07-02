@@ -3,52 +3,17 @@ import streamlit as st
 from streamlit_searchbox import st_searchbox
 from barfi import st_barfi, barfi_schemas, save_schema, load_schemas, load_schema_name
 import plotly.express as px
+import pandas as pd
+from time import time, sleep
 
 from chronomodeler.authentication import requires_auth, get_auth_userid
 from chronomodeler.models import User, UserAuthLevel, Simulation, Experiment
-from chronomodeler.apimethods import get_simulation_data_initial
+from chronomodeler.apimethods import get_simulation_data_initial, insert_data_to_experiment
 from chronomodeler.blocks import (
     transformation_block, prediction_block, get_indep_block, get_dep_block,
     add_block, subtract_block, mult_block, div_block, merge_block
 )
-from chronomodeler.expconfig import ExperimentConfig
-
-def createExperimentSection(userid, selected_sim: Simulation):
-    exp_name = st.text_input('Experiment Name')
-    st.subheader(f"Enter Details for Experiment {exp_name}")
-
-    # training, testing and prediction time choices
-    train_dates = st.date_input('Training Data Range', value=[dt.datetime(2019,1,1), dt.datetime(2021,12,31)])
-    test_dates = st.date_input('Testing Data Range', value=[dt.datetime(2022,1,1), dt.datetime(2022,12,31)])
-    pred_dates = st.date_input('Prediction Data Range', value=[dt.datetime(2023,1,1), dt.datetime(2024,12,31)])
-
-    df = get_simulation_data_initial(selected_sim, userid)
-    collist = df.columns.values.tolist()
-    dep_block = get_dep_block(collist)
-    indep_block = get_indep_block(collist)
-
-    # start with blank slate
-    barfi_result = st_barfi(
-        base_blocks= {
-            'Transformation': [transformation_block, add_block, subtract_block, mult_block, div_block],
-            'Modelling': [prediction_block, dep_block, indep_block, merge_block]
-        }
-    )
-
-    if barfi_result is not None and len(barfi_result) > 0:
-        # TODO: here we need to perform the experiment things
-        expconf = ExperimentConfig.from_barfi_blocks(barfi_result)
-        
-        pass
-
-
-
-
-def editExperimentSection(userid, selected_sim):
-    pass
-
-
-
+from chronomodeler.expconfig import ExperimentConfig, run_experiment
 
 
 @requires_auth(auth_level=UserAuthLevel.PRIVATE)
@@ -73,16 +38,112 @@ def experimentPage():
 
     if selected_sim is not None:
         exp_count = selected_sim.get_experiment_count()
-        st.markdown(f"""
-            This simulation has {exp_count.get('draft', 0)} drafts and,
-            This simulation has {exp_count.get('final', 0)} final experiments!          
-        """)
+        st.markdown(f"""This simulation has {exp_count} experiments!""")
+
+        st.subheader(f"Enter Details for Experiment")
+
+        # training, testing and prediction time choices
+        train_dates = st.date_input('Training Data Range', value=[dt.datetime(2019,1,1), dt.datetime(2021,12,31)])
+        test_dates = st.date_input('Testing Data Range', value=[dt.datetime(2022,1,1), dt.datetime(2022,12,31)])
+        pred_dates = st.date_input('Prediction Data Range', value=[dt.datetime(2023,1,1), dt.datetime(2024,12,31)])
+
+        df = get_simulation_data_initial(selected_sim, userid)
+        collist = df.columns.values.tolist()
+        dep_block = get_dep_block(collist)
+        indep_block = get_indep_block(collist)
+
+
         if exp_action_choice == "Create New Experiment":
-            createExperimentSection(userid, selected_sim)
-        elif exp_action_choice == 'Load Existing Experiment':
-            editExperimentSection(userid, selected_sim)
-        else:
-            raise ValueError("Invalid experiment action")
+            exp_name = st.text_input('Experiment Name')
+    
+            # start with blank slate
+            barfi_result = st_barfi(
+                base_blocks= {
+                    'Transformation': [transformation_block, add_block, subtract_block, mult_block, div_block],
+                    'Modelling': [prediction_block, dep_block, indep_block, merge_block]
+                },
+                key="barfi-create-exp"
+            )
+
+        elif exp_action_choice == "Load Existing Experiment":
+            # load experiment
+            selected_expp: Experiment = st_searchbox(
+                search_function=lambda x: [(expp.exp_name, expp) for expp in Experiment.search(x, userid) ],
+                label="Select Experiment to Load",
+                key="select-expp-load"
+            )
+            if selected_expp is not None:
+                # save the barfi schemas
+                exp_name = selected_expp.exp_name
+                expconf = ExperimentConfig(config = selected_expp.config)
+                expconf.save_schema_temporarily(selected_expp.exp_name)
+                # start with blank slate
+                barfi_result = st_barfi(
+                    base_blocks= {
+                        'Transformation': [transformation_block, add_block, subtract_block, mult_block, div_block],
+                        'Modelling': [prediction_block, dep_block, indep_block, merge_block]
+                    },
+                    key="barfi-update-exp",
+                    load_schema=exp_name
+                )
+            else:
+                barfi_result = None
+                exp_name = None
+        
+        if barfi_result is not None and len(barfi_result) > 0:
+            expconf = ExperimentConfig.from_barfi_blocks(barfi_result)
+            result, shap, metrics = run_experiment(
+                expconf, df, 
+                train_dates, test_dates, pred_dates,
+                selected_sim
+            )
+            st.markdown(f"Model trained on {shap[0]} observations and {shap[1]} features")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown('Model Metrics')
+                st.write(metrics)
+            with col2:
+                st.markdown('Model Prediction')
+                st.dataframe(result)
+
+            # show the experiement related plot also
+            show_plot = st.checkbox('Show Visualization Plot', value=False)
+            if show_plot:
+                target_col = (expconf.get_target_variable())[1]
+                train_data = df
+                train_data['regime'] = 'Train'
+                test_data = result
+                test_data['regime'] = 'Test'
+                plotdf = pd.concat([train_data, test_data])
+                fig = px.line(plotdf, x = 'Time', y = target_col, color='regime', symbol = 'regime')
+                st.plotly_chart(fig, use_container_width=True)
+
+            # if you are okay with the results, try to save it
+            save_exp_btn = st.button('Save Experiment')
+            if save_exp_btn:
+                newexp = Experiment(
+                    simid = selected_sim.simid,
+                    exp_name=exp_name,
+                    config=expconf.config,
+                    results=metrics,
+                    initial=False,
+                    expid=selected_expp.expid if exp_action_choice == "Load Existing Experiment" else None
+                )
+                if exp_action_choice == "Load Existing Experiment":
+                    newexp.update()   # update the newexp id
+                else:
+                    newexp.insert()
+                insert_data_to_experiment(
+                    df = result.drop(labels=['Human Time'], axis = 1),
+                    expp=newexp,
+                    sim=selected_sim,
+                    userid=selected_sim.userid
+                )
+                st.success('Experiment Saved Successfully! This page will reload in 5 seconds')
+
+                sleep(5)
+                st.experimental_rerun()
 
 
 experimentPage()

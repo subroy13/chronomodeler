@@ -96,16 +96,17 @@ class BaseModel:
             return [cls(**row) for row in rows]
         
     @classmethod
-    def search(cls, query, userid):
+    def search(cls, query: str, userid):
         collist = [col for col in cls._columns]
         if 'userid' in collist:
             sql = f"SELECT {','.join(collist)} FROM {cls._table} \
-            WHERE userid = ? AND ({'OR'.join([ (col + ' ILIKE ?') for col in cls._searchcols ])});"
-            params = [userid] + (['%' + query + '%'] * len(cls._searchcols))
+            WHERE userid = ? AND ({'OR'.join([ ('UPPER(' + col + ') LIKE ? ') for col in cls._searchcols ])});"
+            params = [userid] + (['%' + query.upper() + '%'] * len(cls._searchcols))
         else:
             sql = f"SELECT {','.join(collist)} FROM {cls._table} \
-            WHERE ({'OR'.join([ (col + ' ILIKE ?') for col in cls._searchcols ])});"
-            params =  ['%' + query + '%'] * len(cls._searchcols)
+            WHERE ({'OR'.join([ ('UPPER(' + col + ') LIKE ? ') for col in cls._searchcols ])});"
+            params =  ['%' + query.upper() + '%'] * len(cls._searchcols)
+                    
         rows = db_query_fetch(sql, tuple( params ) )
         if rows is None or len(rows) == 0:
             return []

@@ -86,7 +86,7 @@ def simulationCreateSection(userid):
             st.session_state['xl'] = None
 
             # create the initial experiment
-            expp = Experiment(sim.simid, {}, {}, initial=True)
+            expp = Experiment(sim.simid, 'initial', {}, {}, initial=True)
             expp.insert()   # insert the initial experiment (which is same as dummy)
 
             # insert data to the experiment
@@ -95,7 +95,7 @@ def simulationCreateSection(userid):
 
 
 def simulationEditSection(userid):
-    # TODO:
+    # TODO: Update data, and then run all the experiments 1 by 1
     selected_sim = st_searchbox(
         search_function=lambda x: [(sim.sim_name, sim) for sim in Simulation.search(x, userid) ],
         label="Select Simulation to Delete",

@@ -4,7 +4,7 @@
 
 import streamlit as st
 from barfi import Block
-from .models import ChronoModel
+from .chronomodel import ChronoModel
 
 #####################################
 # Transformation Block
