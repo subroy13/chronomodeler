@@ -9,7 +9,7 @@ class Experiment(BaseModel):
 
     _table = "experiments"
     _columns = [
-        "expid", "exp_name", "simid", "config", "results", "created_at", "updated_at"
+        "expid", "exp_name", "simid", "config", "results", "initial", "created_at", "updated_at"
     ]
     _identity = "expid"
     _searchcols = ["exp_name"]
@@ -34,7 +34,6 @@ class Experiment(BaseModel):
         self.created_at = created_at if created_at is not None else int(time.time())
         self.updated_at = updated_at if updated_at is not None else self.created_at
         self.expid = expid
-        self.initial = initial
 
     @classmethod
     def create_table(cls):
