@@ -10,7 +10,8 @@ from chronomodeler.models import User, UserAuthLevel, Simulation, Experiment
 from chronomodeler.apimethods import (
     insert_data_to_experiment, 
     delete_simulation_data_table,
-    get_simulation_data_initial
+    get_simulation_data_initial,
+    delete_data_from_experiment
 )
 
 
@@ -98,11 +99,76 @@ def simulationEditSection(userid):
     # TODO: Update data, and then run all the experiments 1 by 1
     selected_sim = st_searchbox(
         search_function=lambda x: [(sim.sim_name, sim) for sim in Simulation.search(x, userid) ],
-        label="Select Simulation to Delete",
-        key="select-sim-delete"
+        label="Select Simulation to Update",
+        key="select-sim-edit"
     )
-    pass
+    if selected_sim is not None:
+        initial_df = get_simulation_data_initial(selected_sim, userid)
+        st.dataframe(initial_df)
 
+        # upload new data
+        st.subheader('Upload New Data Here')
+        input_f = st.file_uploader('Input File', accept_multiple_files=False)
+        if input_f is not None:
+            xl = pd.ExcelFile(input_f)
+            input_sheet_name = st.selectbox('Input Excel Sheet Name', options=xl.sheet_names)        
+            df = xl.parse(sheet_name=input_sheet_name)
+            st.success(f"Found {df.shape[0]} rows and {df.shape[1]} columns in the dataset")
+            
+            with st.form('preprocess-data-update'):
+                st.markdown('Rename the columns as needed, otherwise leave blank')
+
+                # for each column, create an input
+                col_grids = st.columns(3)
+
+                collist = list(df.columns.values.tolist())
+                col_names = { col: re.sub(r'\n+', ' ', col) for col in collist}
+
+                old_cols = list(df.columns.values.tolist())
+                new_cols = [col_grids[i % 3].text_input(label = col_names[col] ) for i, col in enumerate(col_names)]
+
+                # time column selection
+                col1, col2 = st.columns(2)
+                with col1:
+                    time_col = st.selectbox(label='Time Column', options=collist)
+                with col2:
+                    time_format = st.selectbox(label='Time Format', options=TIME_FORMAT_LIST)
+
+                pre_submitted = st.form_submit_button(label="Preprocess")
+                if pre_submitted:
+                    if df is not None:
+                        select_collist = []
+                        for i in range(len(old_cols)):
+                            if old_cols[i] != time_col:
+                                new_colname = new_cols[i] if new_cols[i] != "" and new_cols[i] is not None else old_cols[i]
+                                select_collist.append(new_colname)
+                                df[new_colname] = pd.to_numeric(df[old_cols[i]].astype(str).str.replace(',', ''))
+                    
+                        df['Time'] = pd.to_datetime(df[time_col], format=time_format, errors="coerce")
+                        subdf = df.loc[(~df['Time'].isna()), select_collist + ['Time']].reset_index(drop = True).copy(deep = True)
+                        subdf['TimeIndex'] = np.arange(subdf.shape[0])
+
+                        st.success(f"Preprocessing completed: Final row count {subdf.shape[0]}!")
+                        st.session_state['processed_data'] = subdf
+                    else:
+                        st.error("Invalid input")
+
+        if st.session_state.get('processed_data') is not None:
+            subdf: pd.DataFrame = st.session_state.get('processed_data')
+            st.dataframe(subdf)
+            rerun_exp_btn = st.button('Save and Rerun Experiments')
+            if rerun_exp_btn:
+                old_cols = [col for col in initial_df.columns if col not in ['experiment_id']]
+                new_cols = [col for col in subdf.columns]
+                if set(old_cols) != set(new_cols):
+                    st.error(f"The updated excel does not match the schema of existing simulation data.")
+                    st.error(f"The columns present in new data but not in old data are: {', '.join( set(new_cols).difference(set(old_cols)) )}")
+                    st.error(f"The columns present in old data but not in new data are: {', '.join( set(old_cols).difference(set(new_cols)) )}")
+                else:
+                    initial_exp = selected_sim.get_initial_experiment()
+                    insert_data_to_experiment(subdf, initial_exp, selected_sim)
+                    st.success('Data Updated Successfully')
+                        
 
 def simulationListSection(userid):
     sim_count = Simulation.count(userid)
@@ -143,7 +209,7 @@ def simulationPage():
     st.subheader('Simulation Actions')
     sim_action_choice = st.radio(
         'Choose Action', 
-        options=['Create', 'List', 'Delete'],
+        options=['Create', 'List', 'Update', 'Delete'],
         horizontal=True
     )
 
@@ -156,7 +222,7 @@ def simulationPage():
         simulationListSection(userid)
     elif sim_action_choice == 'Delete':
         simulationDeleteSection(userid)
-    elif sim_action_choice == 'Edit':
+    elif sim_action_choice == 'Update':
         simulationEditSection(userid)
     else:
         st.error('Invalid Simulation Action')

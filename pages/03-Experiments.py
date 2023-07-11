@@ -132,7 +132,14 @@ def experimentPage():
                     st.write(metrics)
                 with col2:
                     st.markdown('Model Prediction')
+                    st.download_button(
+                        label="Download Prediction as CSV",
+                        data=result.to_csv(index = False).encode('utf-8'),
+                        file_name='prediction.csv',
+                        mime='text/csv',
+                    )
                     st.dataframe(result)
+                    
 
                 # show the experiement related plot also
                 show_plot = st.checkbox('Show Visualization Plot', value=False)
