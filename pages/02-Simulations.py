@@ -13,13 +13,10 @@ from chronomodeler.apimethods import (
     get_simulation_data_initial,
     delete_data_from_experiment
 )
+from chronomodeler.qboutils import fetch_all_qbo_data
 
 
-
-def simulationCreateSection(userid):
-    sim_name = st.text_input('Simulation Name')
-    # TODO: add validation of simulation name unique check
-
+def simulationCreateManualDataSection(sim_name, userid):
     # Step 1: Upload File and Parse Excel Sheet
     with st.form(key='input-file'):
         st.subheader('Input File Details')
@@ -33,6 +30,57 @@ def simulationCreateSection(userid):
             df = xl.parse(sheet_name=input_sheet_name)
             st.success(f"Found {df.shape[0]} rows and {df.shape[1]} columns in the dataset")
             st.session_state['data'] = df
+    
+    
+def simulationCreateQBODataSection(sim_name, userid):
+    realm_id = st.text_input('Quickbooks Account Realmid')
+    access_token = st.text_input('API Access Token')
+    
+    colqbo_1, colqbo_2, colqbo_3 = st.columns(3)
+    with colqbo_1:
+        start_year = st.number_input('Start Year', min_value=1970, max_value=2100)
+    with colqbo_2:
+        end_year = st.number_input('End Year', min_value=1970, max_value=2100)
+    with colqbo_3:
+        data_freq = st.radio('Data Frequency', options=['Yearly', 'Monthly'])
+    
+    fetch_data = st.button('Fetch QBO Data using API', help='Note that this may incur API cost / charges at your developer account')
+    if fetch_data:
+        if realm_id is not None and access_token is not None and realm_id != '' and access_token != '':
+            df = fetch_all_qbo_data(realm_id, access_token, start_year, end_year, data_freq)  # fetches the raw data
+            st.session_state['qborawdata'] = df
+        else:
+            st.error('Invalid realmid or access token')
+
+    if st.session_state.get('qborawdata') is not None:
+        df = st.session_state.get('qborawdata')
+        st.write(f"Fetched data of {df.shape[1] - 1} varibles across {df.shape[0]} timepoints")
+        selectcollist = st.multiselect(label='Select Columns from Reports', options=[x for x in df.columns.tolist() if x not in ['LineItem', 'Time']])
+
+        subdf = df[selectcollist + ['Time']]
+        st.write(f"Please verify the selected data below")
+        st.write(subdf)
+
+        proceed_btn = st.button('Looks Okay! Proceed')
+        if proceed_btn:
+            st.session_state['data'] = subdf
+
+
+def simulationCreateSection(userid):
+    sim_name = st.text_input('Simulation Name')
+    # TODO: add validation of simulation name unique check
+
+    sim_create_choice = st.radio(
+        'Choose Data Creation Type', 
+        options=['Manual Upload', 'Import From Quickbooks'],
+        horizontal=True
+    )
+
+    # Step 1: Fetch the raw data
+    if sim_create_choice == 'Manual Upload':
+        simulationCreateManualDataSection(sim_name, userid)
+    else:
+        simulationCreateQBODataSection(sim_name, userid)
 
     # Step 2: Optional Renaming of the variables
     if st.session_state.get('data') is not None:
@@ -44,17 +92,23 @@ def simulationCreateSection(userid):
             col_grids = st.columns(3)
 
             collist = list(df.columns.values.tolist())
-            col_names = { col: re.sub(r'\n+', ' ', col) for col in collist}
-
+            if sim_create_choice == 'Manual Upload':
+                col_names = { col: re.sub(r'\n+', ' ', col) for col in collist}
+            else:
+                col_names = { col: re.sub(r'\n+', ' ', col) for col in collist if col != 'Time'}
             old_cols = list(df.columns.values.tolist())
             new_cols = [col_grids[i % 3].text_input(label = col_names[col] ) for i, col in enumerate(col_names)]
 
-            # time column selection
-            col1, col2 = st.columns(2)
-            with col1:
-                time_col = st.selectbox(label='Time Column', options=collist)
-            with col2:
-                time_format = st.selectbox(label='Time Format', options=TIME_FORMAT_LIST)
+            # time column selection (only for manual upload)
+            if sim_create_choice == 'Manual Upload':
+                col1, col2 = st.columns(2)
+                with col1:
+                    time_col = st.selectbox(label='Time Column', options=collist)
+                with col2:
+                    time_format = st.selectbox(label='Time Format', options=TIME_FORMAT_LIST)
+            else:
+                time_col = 'Time'
+                time_format = "%Y-%m-%d"
 
             pre_submitted = st.form_submit_button(label="Preprocess")
             if pre_submitted:
@@ -74,7 +128,8 @@ def simulationCreateSection(userid):
                     st.session_state['processed_data'] = subdf
                 else:
                     st.error("Invalid input")
-    
+
+    # creating the simulation object
     if st.session_state.get('processed_data') is not None:
         subdf: pd.DataFrame = st.session_state.get('processed_data')
         st.dataframe(subdf)
@@ -95,6 +150,7 @@ def simulationCreateSection(userid):
             st.success("You're good to go for the experiments!")
 
 
+    
 def simulationEditSection(userid):
     # TODO: Update data, and then run all the experiments 1 by 1
     selected_sim = st_searchbox(

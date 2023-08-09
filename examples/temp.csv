@@ -1,0 +1,279 @@
+LineItem,Amount,Time,ReportType
+Income,0.0,2021-12-31,ProfitAndLoss
+Billable Expense Income,0.0,2021-12-31,ProfitAndLoss
+IncomeAccount1,215.0,2021-12-31,ProfitAndLoss
+Sales of Product Income,-12.0,2021-12-31,ProfitAndLoss
+Services,5036442.0,2021-12-31,ProfitAndLoss
+Total Income,5036645.0,2021-12-31,ProfitAndLoss
+Cost of Goods Sold,0.0,2021-12-31,ProfitAndLoss
+Cost of goods sold,-65.0,2021-12-31,ProfitAndLoss
+ExpenseAccount1,0.0,2021-12-31,ProfitAndLoss
+Total Cost of Goods Sold,-65.0,2021-12-31,ProfitAndLoss
+Gross Profit,5036710.0,2021-12-31,ProfitAndLoss
+Expenses,0.0,2021-12-31,ProfitAndLoss
+Business licenses,0.0,2021-12-31,ProfitAndLoss
+Contract labor,72.0,2021-12-31,ProfitAndLoss
+Supplies,0.0,2021-12-31,ProfitAndLoss
+Supplies & materials,100.0,2021-12-31,ProfitAndLoss
+Total Supplies,100.0,2021-12-31,ProfitAndLoss
+Total Expenses,172.0,2021-12-31,ProfitAndLoss
+Net Operating Income,5036538.0,2021-12-31,ProfitAndLoss
+Other Expenses,0.0,2021-12-31,ProfitAndLoss
+Reconciliation Discrepancies,7000.0,2021-12-31,ProfitAndLoss
+Vehicle expenses,0.0,2021-12-31,ProfitAndLoss
+Vehicle gas & fuel,50.0,2021-12-31,ProfitAndLoss
+Total Vehicle expenses,50.0,2021-12-31,ProfitAndLoss
+Total Other Expenses,7050.0,2021-12-31,ProfitAndLoss
+Net Other Income,-7050.0,2021-12-31,ProfitAndLoss
+Net Income,5029488.0,2021-12-31,ProfitAndLoss
+Income,0.0,2022-12-31,ProfitAndLoss
+ABC Product,-19580.0,2022-12-31,ProfitAndLoss
+Billable Expense Income,150.0,2022-12-31,ProfitAndLoss
+IncomeAccount1,22232.0,2022-12-31,ProfitAndLoss
+Sales of Product Income,21584.0,2022-12-31,ProfitAndLoss
+Services,27692.59,2022-12-31,ProfitAndLoss
+Total Income,52078.59,2022-12-31,ProfitAndLoss
+Cost of Goods Sold,0.0,2022-12-31,ProfitAndLoss
+Cost of goods sold,15810.09,2022-12-31,ProfitAndLoss
+ExpenseAccount1,320.0,2022-12-31,ProfitAndLoss
+Inventory Shrinkage,-52.0,2022-12-31,ProfitAndLoss
+Total Cost of Goods Sold,16078.09,2022-12-31,ProfitAndLoss
+Gross Profit,36000.5,2022-12-31,ProfitAndLoss
+Expenses,0.0,2022-12-31,ProfitAndLoss
+Advertising & marketing,24920.1,2022-12-31,ProfitAndLoss
+Alyce,24159.13,2022-12-31,ProfitAndLoss
+Bad Debt,69249.38,2022-12-31,ProfitAndLoss
+Burdette,8569.8,2022-12-31,ProfitAndLoss
+Business licenses,15600.6,2022-12-31,ProfitAndLoss
+Casimir,10516.35,2022-12-31,ProfitAndLoss
+Commissions & fees,34958.67,2022-12-31,ProfitAndLoss
+Contract labor,9073.82,2022-12-31,ProfitAndLoss
+Employee benefits,8704.04,2022-12-31,ProfitAndLoss
+Employee retirement plans,23851.02,2022-12-31,ProfitAndLoss
+Group term life insurance,1971.07,2022-12-31,ProfitAndLoss
+Health insurance & accident plans,12339.07,2022-12-31,ProfitAndLoss
+Officers' life insurance,16161.44,2022-12-31,ProfitAndLoss
+Workers' compensation insurance,3363.75,2022-12-31,ProfitAndLoss
+Total Employee benefits,66390.39,2022-12-31,ProfitAndLoss
+Entertainment,4748.08,2022-12-31,ProfitAndLoss
+ExpenseAccount,10595.09,2022-12-31,ProfitAndLoss
+General business expenses,11006.57,2022-12-31,ProfitAndLoss
+Bank fees & service charges,9887.64,2022-12-31,ProfitAndLoss
+Continuing education,8571.82,2022-12-31,ProfitAndLoss
+Memberships & subscriptions,15403.5,2022-12-31,ProfitAndLoss
+Uniforms,46845.15,2022-12-31,ProfitAndLoss
+Total General business expenses,91714.68,2022-12-31,ProfitAndLoss
+Insurance,2262.27,2022-12-31,ProfitAndLoss
+Business insurance,15479.5,2022-12-31,ProfitAndLoss
+Liability insurance,13310.1,2022-12-31,ProfitAndLoss
+Property insurance,275.46,2022-12-31,ProfitAndLoss
+Total Insurance,31327.33,2022-12-31,ProfitAndLoss
+Interest paid,6354.21,2022-12-31,ProfitAndLoss
+Credit card interest,11592.31,2022-12-31,ProfitAndLoss
+Mortgage interest,5252.08,2022-12-31,ProfitAndLoss
+Total Interest paid,23198.6,2022-12-31,ProfitAndLoss
+Kennith,11444.04,2022-12-31,ProfitAndLoss
+Mariana,48489456.0,2022-12-31,ProfitAndLoss
+Meals,1500.0,2022-12-31,ProfitAndLoss
+Meals with clients,29086.0,2022-12-31,ProfitAndLoss
+Total Meals,30586.0,2022-12-31,ProfitAndLoss
+MyJobs_uyh65t,200.0,2022-12-31,ProfitAndLoss
+Office expenses,0.0,2022-12-31,ProfitAndLoss
+Shipping & postage,-250.3,2022-12-31,ProfitAndLoss
+Total Office expenses,-250.3,2022-12-31,ProfitAndLoss
+Purchases,20.0,2022-12-31,ProfitAndLoss
+Repairs & maintenance,20.0,2022-12-31,ProfitAndLoss
+Supplies,0.0,2022-12-31,ProfitAndLoss
+Supplies & materials,100892.0,2022-12-31,ProfitAndLoss
+Total Supplies,100892.0,2022-12-31,ProfitAndLoss
+Uncategorized Expense,200.0,2022-12-31,ProfitAndLoss
+Total Expenses,49057589.76,2022-12-31,ProfitAndLoss
+Net Operating Income,-49021589.26,2022-12-31,ProfitAndLoss
+Other Income,0.0,2022-12-31,ProfitAndLoss
+Insurance claims,-100.0,2022-12-31,ProfitAndLoss
+Total Other Income,-100.0,2022-12-31,ProfitAndLoss
+Other Expenses,0.0,2022-12-31,ProfitAndLoss
+Amortization expenses,10.0,2022-12-31,ProfitAndLoss
+Reconciliation Discrepancies,-699.0,2022-12-31,ProfitAndLoss
+Vehicle expenses,0.0,2022-12-31,ProfitAndLoss
+Vehicle gas & fuel,2725.0,2022-12-31,ProfitAndLoss
+Total Vehicle expenses,2725.0,2022-12-31,ProfitAndLoss
+Total Other Expenses,2036.0,2022-12-31,ProfitAndLoss
+Net Other Income,-2136.0,2022-12-31,ProfitAndLoss
+Net Income,-49023725.26,2022-12-31,ProfitAndLoss
+Income,0.0,2023-12-31,ProfitAndLoss
+Sales of Product Income,-96.0,2023-12-31,ProfitAndLoss
+Total Income,-96.0,2023-12-31,ProfitAndLoss
+Cost of Goods Sold,0.0,2023-12-31,ProfitAndLoss
+Cost of goods sold,-8188.71,2023-12-31,ProfitAndLoss
+Total Cost of Goods Sold,-8188.71,2023-12-31,ProfitAndLoss
+Gross Profit,8092.71,2023-12-31,ProfitAndLoss
+Expenses,0.0,2023-12-31,ProfitAndLoss
+ExpenseAccount,0.0,2023-12-31,ProfitAndLoss
+Total Expenses,0.0,2023-12-31,ProfitAndLoss
+Net Operating Income,8092.71,2023-12-31,ProfitAndLoss
+Net Income,8092.71,2023-12-31,ProfitAndLoss
+ASSETS,0.0,2021-12-31,BalanceSheet
+Current Assets,0.0,2021-12-31,BalanceSheet
+Bank Accounts,0.0,2021-12-31,BalanceSheet
+AssetAccount,-162.0,2021-12-31,BalanceSheet
+Cash,-5011926.0,2021-12-31,BalanceSheet
+Horace,60.0,2021-12-31,BalanceSheet
+NEW (deleted),-1000.0,2021-12-31,BalanceSheet
+Total Bank Accounts,-5013028.0,2021-12-31,BalanceSheet
+Accounts Receivable,0.0,2021-12-31,BalanceSheet
+Accounts receivable (A/R),5022940.0,2021-12-31,BalanceSheet
+Total Accounts Receivable,5022940.0,2021-12-31,BalanceSheet
+Other Current Assets,0.0,2021-12-31,BalanceSheet
+AssetAccount1,0.0,2021-12-31,BalanceSheet
+Inventory Asset,16417.0,2021-12-31,BalanceSheet
+Payments to deposit,265.0,2021-12-31,BalanceSheet
+Total Other Current Assets,16682.0,2021-12-31,BalanceSheet
+Total Current Assets,26594.0,2021-12-31,BalanceSheet
+Fixed Assets,0.0,2021-12-31,BalanceSheet
+Accumulated depreciation,-47.0,2021-12-31,BalanceSheet
+Total Fixed Assets,-47.0,2021-12-31,BalanceSheet
+TOTAL ASSETS,26547.0,2021-12-31,BalanceSheet
+LIABILITIES AND EQUITY,0.0,2021-12-31,BalanceSheet
+Liabilities,0.0,2021-12-31,BalanceSheet
+Current Liabilities,0.0,2021-12-31,BalanceSheet
+Accounts Payable,0.0,2021-12-31,BalanceSheet
+Accounts Payable (A/P),7072.0,2021-12-31,BalanceSheet
+Gino,98.0,2021-12-31,BalanceSheet
+Valentina,23.0,2021-12-31,BalanceSheet
+Total Accounts Payable,7193.0,2021-12-31,BalanceSheet
+Credit Cards,0.0,2021-12-31,BalanceSheet
+creditcard12,-55.0,2021-12-31,BalanceSheet
+Oda,-134.0,2021-12-31,BalanceSheet
+sandeep kumar-1,-2020.0,2021-12-31,BalanceSheet
+Total Credit Cards,-2209.0,2021-12-31,BalanceSheet
+Other Current Liabilities,0.0,2021-12-31,BalanceSheet
+New Jersey Division of Taxation Payable,0.0,2021-12-31,BalanceSheet
+Out Of Scope Agency Payable,0.0,2021-12-31,BalanceSheet
+Total Other Current Liabilities,0.0,2021-12-31,BalanceSheet
+Total Current Liabilities,4984.0,2021-12-31,BalanceSheet
+Total Liabilities,4984.0,2021-12-31,BalanceSheet
+Equity,0.0,2021-12-31,BalanceSheet
+Additional paid in capital,-47.0,2021-12-31,BalanceSheet
+Opening balance equity,-5007684.0,2021-12-31,BalanceSheet
+Retained Earnings,-194.0,2021-12-31,BalanceSheet
+Net Income,5029488.0,2021-12-31,BalanceSheet
+Total Equity,21563.0,2021-12-31,BalanceSheet
+TOTAL LIABILITIES AND EQUITY,26547.0,2021-12-31,BalanceSheet
+ASSETS,0.0,2022-12-31,BalanceSheet
+Current Assets,0.0,2022-12-31,BalanceSheet
+Bank Accounts,0.0,2022-12-31,BalanceSheet
+Ahmad,-2595264.0,2022-12-31,BalanceSheet
+AssetAccount,4914839.17,2022-12-31,BalanceSheet
+Bank21,400.0,2022-12-31,BalanceSheet
+Cash,-5108917.0,2022-12-31,BalanceSheet
+Horace,60.0,2022-12-31,BalanceSheet
+Josephine,1302.0,2022-12-31,BalanceSheet
+Mhgr432,-15.0,2022-12-31,BalanceSheet
+Total Bank Accounts,-2787594.83,2022-12-31,BalanceSheet
+Accounts Receivable,0.0,2022-12-31,BalanceSheet
+Accounts receivable (A/R),63732.15,2022-12-31,BalanceSheet
+Total Accounts Receivable,63732.15,2022-12-31,BalanceSheet
+Other Current Assets,0.0,2022-12-31,BalanceSheet
+AssetAccount1,280.0,2022-12-31,BalanceSheet
+Inventory Asset,4590.0,2022-12-31,BalanceSheet
+Jeramie,2479.34,2022-12-31,BalanceSheet
+Payments to deposit,1829.32,2022-12-31,BalanceSheet
+Total Other Current Assets,9178.66,2022-12-31,BalanceSheet
+Total Current Assets,-2714684.02,2022-12-31,BalanceSheet
+Fixed Assets,0.0,2022-12-31,BalanceSheet
+Accumulated depreciation,-11258.0,2022-12-31,BalanceSheet
+Furniture & fixtures,5000.0,2022-12-31,BalanceSheet
+Total Fixed Assets,-6258.0,2022-12-31,BalanceSheet
+Other Assets,0.0,2022-12-31,BalanceSheet
+Lease buyout,-100.0,2022-12-31,BalanceSheet
+Total Other Assets,-100.0,2022-12-31,BalanceSheet
+TOTAL ASSETS,-2721042.02,2022-12-31,BalanceSheet
+LIABILITIES AND EQUITY,0.0,2022-12-31,BalanceSheet
+Liabilities,0.0,2022-12-31,BalanceSheet
+Current Liabilities,0.0,2022-12-31,BalanceSheet
+Accounts Payable,0.0,2022-12-31,BalanceSheet
+Accounts Payable (A/P),46281961.76,2022-12-31,BalanceSheet
+Accounts Payable (A/P) - AUD,-747.91,2022-12-31,BalanceSheet
+Accounts Payable (A/P) - INR,0.0,2022-12-31,BalanceSheet
+Gino,98.0,2022-12-31,BalanceSheet
+Valentina,23.0,2022-12-31,BalanceSheet
+Total Accounts Payable,46281334.85,2022-12-31,BalanceSheet
+Credit Cards,0.0,2022-12-31,BalanceSheet
+creditcard12,2051.0,2022-12-31,BalanceSheet
+MyJohgtr ( 214 ),30.0,2022-12-31,BalanceSheet
+Oda,-8856.7,2022-12-31,BalanceSheet
+sandeep kumar-1,-1980.0,2022-12-31,BalanceSheet
+Total Credit Cards,-8755.7,2022-12-31,BalanceSheet
+Other Current Liabilities,0.0,2022-12-31,BalanceSheet
+New Jersey Division of Taxation Payable,1410.54,2022-12-31,BalanceSheet
+Out Of Scope Agency Payable,7.55,2022-12-31,BalanceSheet
+Total Other Current Liabilities,1418.09,2022-12-31,BalanceSheet
+Total Current Liabilities,46273997.24,2022-12-31,BalanceSheet
+Total Liabilities,46273997.24,2022-12-31,BalanceSheet
+Equity,0.0,2022-12-31,BalanceSheet
+Additional paid in capital,-47.0,2022-12-31,BalanceSheet
+Opening balance equity,-5000461.0,2022-12-31,BalanceSheet
+Retained Earnings,5029194.0,2022-12-31,BalanceSheet
+Net Income,-49023725.26,2022-12-31,BalanceSheet
+Total Equity,-48995039.26,2022-12-31,BalanceSheet
+TOTAL LIABILITIES AND EQUITY,-2721042.02,2022-12-31,BalanceSheet
+ASSETS,0.0,2023-12-31,BalanceSheet
+Current Assets,0.0,2023-12-31,BalanceSheet
+Bank Accounts,0.0,2023-12-31,BalanceSheet
+Ahmad,-2595264.0,2023-12-31,BalanceSheet
+AssetAccount,4912339.17,2023-12-31,BalanceSheet
+Bank21,400.0,2023-12-31,BalanceSheet
+Cash,-5108917.0,2023-12-31,BalanceSheet
+Horace,60.0,2023-12-31,BalanceSheet
+Josephine,1302.0,2023-12-31,BalanceSheet
+Mhgr432,-15.0,2023-12-31,BalanceSheet
+Total Bank Accounts,-2790094.83,2023-12-31,BalanceSheet
+Accounts Receivable,0.0,2023-12-31,BalanceSheet
+Accounts receivable (A/R),63636.15,2023-12-31,BalanceSheet
+Total Accounts Receivable,63636.15,2023-12-31,BalanceSheet
+Other Current Assets,0.0,2023-12-31,BalanceSheet
+Allowance for bad debts,10.0,2023-12-31,BalanceSheet
+AssetAccount1,280.0,2023-12-31,BalanceSheet
+Inventory Asset,2250.99,2023-12-31,BalanceSheet
+Jeramie,2479.34,2023-12-31,BalanceSheet
+Payments to deposit,1829.32,2023-12-31,BalanceSheet
+Total Other Current Assets,6849.65,2023-12-31,BalanceSheet
+Total Current Assets,-2719609.03,2023-12-31,BalanceSheet
+Fixed Assets,0.0,2023-12-31,BalanceSheet
+Accumulated depreciation,-11258.0,2023-12-31,BalanceSheet
+Furniture & fixtures,5000.0,2023-12-31,BalanceSheet
+Total Fixed Assets,-6258.0,2023-12-31,BalanceSheet
+Other Assets,0.0,2023-12-31,BalanceSheet
+Lease buyout,-100.0,2023-12-31,BalanceSheet
+Total Other Assets,-100.0,2023-12-31,BalanceSheet
+TOTAL ASSETS,-2725967.03,2023-12-31,BalanceSheet
+LIABILITIES AND EQUITY,0.0,2023-12-31,BalanceSheet
+Liabilities,0.0,2023-12-31,BalanceSheet
+Current Liabilities,0.0,2023-12-31,BalanceSheet
+Accounts Payable,0.0,2023-12-31,BalanceSheet
+Accounts Payable (A/P),46269858.76,2023-12-31,BalanceSheet
+Accounts Payable (A/P) - AUD,-1662.63,2023-12-31,BalanceSheet
+Accounts Payable (A/P) - INR,0.0,2023-12-31,BalanceSheet
+Gino,98.0,2023-12-31,BalanceSheet
+Valentina,23.0,2023-12-31,BalanceSheet
+Total Accounts Payable,46268317.13,2023-12-31,BalanceSheet
+Credit Cards,0.0,2023-12-31,BalanceSheet
+creditcard12,2051.0,2023-12-31,BalanceSheet
+MyJohgtr ( 214 ),30.0,2023-12-31,BalanceSheet
+Oda,-8856.7,2023-12-31,BalanceSheet
+sandeep kumar-1,-1980.0,2023-12-31,BalanceSheet
+Total Credit Cards,-8755.7,2023-12-31,BalanceSheet
+Other Current Liabilities,0.0,2023-12-31,BalanceSheet
+New Jersey Division of Taxation Payable,1410.54,2023-12-31,BalanceSheet
+Out Of Scope Agency Payable,7.55,2023-12-31,BalanceSheet
+Total Other Current Liabilities,1418.09,2023-12-31,BalanceSheet
+Total Current Liabilities,46260979.52,2023-12-31,BalanceSheet
+Total Liabilities,46260979.52,2023-12-31,BalanceSheet
+Equity,0.0,2023-12-31,BalanceSheet
+Additional paid in capital,-47.0,2023-12-31,BalanceSheet
+Opening balance equity,-5000461.0,2023-12-31,BalanceSheet
+Retained Earnings,-43994531.26,2023-12-31,BalanceSheet
+Net Income,8092.71,2023-12-31,BalanceSheet
+Total Equity,-48986946.55,2023-12-31,BalanceSheet
+TOTAL LIABILITIES AND EQUITY,-2725967.03,2023-12-31,BalanceSheet

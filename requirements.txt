@@ -5,3 +5,4 @@ barfi
 scikit-learn
 plotly
 bcrypt
+stqdm
