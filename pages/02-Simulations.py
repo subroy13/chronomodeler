@@ -118,7 +118,7 @@ def simulationCreateSection(userid):
                         if old_cols[i] != time_col:
                             new_colname = new_cols[i] if new_cols[i] != "" and new_cols[i] is not None else old_cols[i]
                             select_collist.append(new_colname)
-                            df[new_colname] = pd.to_numeric(df[old_cols[i]].astype(str).str.replace(',', ''))
+                            df[new_colname] = pd.to_numeric(df[old_cols[i]].astype(str).str.replace(',', ''), errors='coerce')
                 
                     df['Time'] = pd.to_datetime(df[time_col], format=time_format, errors="coerce")
                     subdf = df.loc[(~df['Time'].isna()), select_collist + ['Time']].reset_index(drop = True).copy(deep = True)
@@ -198,7 +198,7 @@ def simulationEditSection(userid):
                             if old_cols[i] != time_col:
                                 new_colname = new_cols[i] if new_cols[i] != "" and new_cols[i] is not None else old_cols[i]
                                 select_collist.append(new_colname)
-                                df[new_colname] = pd.to_numeric(df[old_cols[i]].astype(str).str.replace(',', ''))
+                                df[new_colname] = pd.to_numeric(df[old_cols[i]].astype(str).str.replace(',', ''), errors='coerce')
                     
                         df['Time'] = pd.to_datetime(df[time_col], format=time_format, errors="coerce")
                         subdf = df.loc[(~df['Time'].isna()), select_collist + ['Time']].reset_index(drop = True).copy(deep = True)

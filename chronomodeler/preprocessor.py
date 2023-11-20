@@ -111,7 +111,7 @@ def apply_single_transformation(x: pd.Series, method: str, parameter):
     elif method == "Sine":
         return np.sin(2 * np.pi * x / parameter)
     elif method == "Cosine":
-        return np.sin(2 * np.pi * x / parameter)
+        return np.cos(2 * np.pi * x / parameter)
     elif method == "Exponent":
         return np.expm1(x)
     elif method == "Log":

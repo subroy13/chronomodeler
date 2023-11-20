@@ -347,13 +347,13 @@ def create_pred_df(
             elif variables[col]['type'] == 'Dependent Variable':
                 row[col] = get_data_cell_value(new_data, new_data['Time'] == d, col)
             else:
-                method = variables[col].get("model")
+                method = variables[col].get("method")
                 parameter = variables[col].get("parameter")
                 if method == "Identity":
                     # look for data present in new_data
                     row[col] = get_data_cell_value(new_data, new_data['Time'] == d, col)
                 elif method == "CAGR":
-                    stride, window = [int(x) for x in parameter.split(",")]
+                    stride, window = parameter
 
                     # calculate the CAGR
                     oldest_val = new_data.iloc[:window][col].mean(skipna=True)
@@ -364,7 +364,7 @@ def create_pred_df(
                     prev_d = prev_date_list(d, data_freq, n = 1 + int(stride) )[0]
                     row[col] = get_data_cell_value(new_data, new_data['Time'] == prev_d, col) * (1 + cagr_rate) ** (stride / window)
                 elif method == "Growth":
-                    offset, growth_rate = [float(x) for x in parameter.split(",")]
+                    offset, growth_rate = parameter
                     prev_d = prev_date_list(d, data_freq, n = 1 + int(offset) )[0]
                     row[col] = get_data_cell_value(new_data, new_data['Time'] == prev_d, col) * (1 + convert_annual_growth_rate(growth_rate, data_freq) )**offset
                 elif method == "Experiment Output":
